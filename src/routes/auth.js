@@ -1,23 +1,12 @@
 const express = require("express");
 const router = express.Router();
 
-router.get("/login", (req, res) => {
-  res.render("auth/login.ejs");
-});
+const authController = require("../controllers/auth.js");
 
-router.get("/register", (req, res) => {
-  res.render("auth/register.ejs");
-});
-
-router.post("/login", express.urlencoded({ extended: false }), (req, res) => {
-  var username = req.body.username;
-  var password = req.body.password;
-
-  req.session.bUserIsAuthenticated = true;
-  req.session.username = username;
-
-  res.send("Login Successful");
-});
+router.get("/login", authController.getLoginPage);
+router.get("/register", authController.getRegisterPage);
+router.post("/login", express.urlencoded({ extended: false }), authController.postLogin);
+router.post("/register", express.urlencoded({ extended: false }), authController.getRegisterPage);
 
 module.exports = {
   routes: router,

@@ -2,16 +2,13 @@ const express = require("express");
 const expressSession = require("express-session");
 const MongoStore = require("connect-mongo")(expressSession);
 
+const config = require("./src/config/config.js");
+const mongodb = require("./src/config/mongodb.js");
 const authRoutes = require("./src/routes/auth.js");
-
-const config = {
-  PORT: 3000,
-  DB_URL: "mongodb://localhost:27017/login_system_v1"
-}
 
 const app = express();
 const store = new MongoStore({
-  url: config.DB_URL,
+  url: config.DB_CONNECTION_URL,
   collection: "sessions",
   autoRemove: 'interval',
   autoRemoveInterval: 10 // In minutes. Default
@@ -31,8 +28,8 @@ app.use(expressSession({
 }), (req, res, next) => {
   // Initialise default variables on the session object
   if (typeof req.session != "undefined") {
-    if (typeof req.session.initialised === "undefined") {
-      req.session.initialised = true;
+    if (typeof req.session.initialisedSession === "undefined") {
+      req.session.initialisedSession = true;
       req.session.bUserIsAuthenticated = false;
       req.session.pageViews = 0;
     }
@@ -63,6 +60,15 @@ app.get("/", (req, res) => {
 
 });
 
-app.listen(config.PORT, () => {
-  console.log(`Server is listening on http://localhost:${config.PORT}`);
-});
+(async () => {
+  try {
+    await mongodb.connect();
+    app.listen(config.PORT, () => {
+      console.log(`Server is listening on http://localhost:${config.PORT}`);
+    });
+  } catch (error) {
+    console.log(error);
+    await mongodb.disconnect();
+  }
+
+})()
