@@ -1,0 +1,24 @@
+{
+  "name": "login-system-v1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/codegigas/login-system-v1.git"
+  },
+  "author": "Knightwalker",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/codegigas/login-system-v1/issues"
+  },
+  "homepage": "https://github.com/codegigas/login-system-v1#readme",
+  "dependencies": {
+    "connect-mongo": "^3.2.0",
+    "express": "^4.17.1",
+    "express-session": "^1.17.1"
+  }
+}
