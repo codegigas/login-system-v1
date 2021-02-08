@@ -2,9 +2,14 @@ const express = require("express");
 const expressSession = require("express-session");
 const MongoStore = require('connect-mongo')(expressSession);
 
+const config = {
+  PORT: 3000,
+  DB_URL: "mongodb://localhost:27017/login_system_v1"
+}
+
 const app = express();
 const store = new MongoStore({
-  url: "mongodb://localhost:27017/login_system_v1",
+  url: config.DB_URL,
   collection: "sessions",
   autoRemove: 'interval',
   autoRemoveInterval: 10 // In minutes. Default
@@ -24,6 +29,7 @@ app.use(expressSession({
   if (typeof req.session != "undefined") {
     if (typeof req.session.initialised === "undefined") {
       req.session.initialised = true;
+      req.session.bUserIsAuthenticated = false;
       req.session.pageViews = 0;
     }
   }
@@ -31,20 +37,50 @@ app.use(expressSession({
 });
 
 app.get("/", (req, res) => {
-  // If there is a session established
-  if (typeof req.session != "undefined") { 
-    console.log("kur");
-    req.session.pageViews++;
-  }
+  req.session.pageViews++;
   console.log(req.session);
-  res.send("HOME");
+
+  var html = "Hello, ";
+  if (!req.session.bUserIsAuthenticated) {
+    html += "Guest !";
+  } else {
+    html += req.session.username + "!";
+  }
+
+  res.send(`
+    <h1>HOME PAGE</h1>
+    <br>
+    ${html}
+  `);
+
 });
 
 app.get("/login", (req, res) => {
+  res.send(`
+    <form action="/login" method="POST">
+      <div>
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username">
+      </div>
+      <div>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password">
+      </div>
+      <input type="submit" value="Log In">
+    </form>
+  `);
+});
+app.post("/login", express.urlencoded({ extended: false }), (req, res) => {
+  //console.log(req.body);
+  var username = req.body.username;
+  var password = req.body.password;
+
   req.session.bUserIsAuthenticated = true;
+  req.session.username = username;
+
   res.send("Login Successful");
 });
 
-app.listen(3000, () => {
-  console.log(`Server is listening on http://localhost:3000`);
+app.listen(config.PORT, () => {
+  console.log(`Server is listening on http://localhost:${config.PORT}`);
 })
