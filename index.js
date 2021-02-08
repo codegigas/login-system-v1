@@ -1,6 +1,8 @@
 const express = require("express");
 const expressSession = require("express-session");
-const MongoStore = require('connect-mongo')(expressSession);
+const MongoStore = require("connect-mongo")(expressSession);
+
+const authRoutes = require("./src/routes/auth.js");
 
 const config = {
   PORT: 3000,
@@ -14,6 +16,8 @@ const store = new MongoStore({
   autoRemove: 'interval',
   autoRemoveInterval: 10 // In minutes. Default
 });
+app.set("view engine", "ejs");
+app.set("views", "./src/views");
 
 app.use(expressSession({ 
   secret: "keyboard cats", 
@@ -21,7 +25,7 @@ app.use(expressSession({
     maxAge: 5 * 24 * 60 * 60 * 1000 // In milliseconds. 5 Days in total.
   }, 
   httpOnly: true, 
-  saveUninitialized: false, // don't create session until something stored
+  saveUninitialized: false, // don't create session until something is stored
   resave: false, //don't save session if unmodified
   store: store, 
 }), (req, res, next) => {
@@ -35,6 +39,8 @@ app.use(expressSession({
   }
   next();
 });
+
+app.use(authRoutes.routes);
 
 app.get("/", (req, res) => {
   req.session.pageViews++;
@@ -50,37 +56,13 @@ app.get("/", (req, res) => {
   res.send(`
     <h1>HOME PAGE</h1>
     <br>
+    <a href="/login">login page</a>
+    <a href="/register">register page</a>
     ${html}
   `);
 
 });
 
-app.get("/login", (req, res) => {
-  res.send(`
-    <form action="/login" method="POST">
-      <div>
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username">
-      </div>
-      <div>
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password">
-      </div>
-      <input type="submit" value="Log In">
-    </form>
-  `);
-});
-app.post("/login", express.urlencoded({ extended: false }), (req, res) => {
-  //console.log(req.body);
-  var username = req.body.username;
-  var password = req.body.password;
-
-  req.session.bUserIsAuthenticated = true;
-  req.session.username = username;
-
-  res.send("Login Successful");
-});
-
 app.listen(config.PORT, () => {
   console.log(`Server is listening on http://localhost:${config.PORT}`);
-})
+});
