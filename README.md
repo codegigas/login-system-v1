@@ -1,5 +1,5 @@
-# Basic Login System with Sessions
-This is a basic login system example, implemented using sessions
+# Basic Login System V1
+This is a basic login system example, implemented using a session, stored in HttpOnly only cookie.
 
 Tech Stack
 * NodeJS

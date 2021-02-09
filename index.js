@@ -45,7 +45,7 @@ app.use(authRoutes.routes);
 
 app.get("/", (req, res) => {
   req.session.user.pageViews++;
-  console.log(req.session);
+  //console.log(req.session);
   
   const data = {
     bUserIsAuthenticated: req.session.user.bUserIsAuthenticated,
