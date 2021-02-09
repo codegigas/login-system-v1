@@ -43,20 +43,14 @@ app.get("/", (req, res) => {
   req.session.pageViews++;
   console.log(req.session);
 
-  var html = "Hello, ";
-  if (!req.session.bUserIsAuthenticated) {
-    html += "Guest !";
-  } else {
-    html += req.session.username + "!";
+  const data = {
+    bUserIsAuthenticated: req.session.bUserIsAuthenticated,
+    objUser: {
+      username: req.session.username
+    }
   }
 
-  res.send(`
-    <h1>HOME PAGE</h1>
-    <br>
-    <a href="/login">login page</a>
-    <a href="/register">register page</a>
-    ${html}
-  `);
+  res.render("home.ejs", data);
 
 });
 
