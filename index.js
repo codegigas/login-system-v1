@@ -1,4 +1,5 @@
 const express = require("express");
+const cookieParser = require('cookie-parser')
 const expressSession = require("express-session");
 const MongoStore = require("connect-mongo")(expressSession);
 
@@ -16,22 +17,25 @@ const store = new MongoStore({
 app.set("view engine", "ejs");
 app.set("views", "./src/views");
 
+app.use(cookieParser(config.COOKIE_PARSER_SECRET));
 app.use(expressSession({ 
-  secret: "keyboard cats", 
-  cookie: {
-    maxAge: 5 * 24 * 60 * 60 * 1000 // In milliseconds. 5 Days in total.
-  }, 
-  httpOnly: true, 
+  secret: config.EXPRESS_SESSION_SECRET, 
   saveUninitialized: false, // don't create session until something is stored
   resave: false, //don't save session if unmodified
   store: store, 
+  cookie: {
+    maxAge: 5 * 24 * 60 * 60 * 1000, // In milliseconds. 5 Days in total.
+    httpOnly: true
+  }, 
 }), (req, res, next) => {
   // Initialise default variables on the session object
   if (typeof req.session != "undefined") {
     if (typeof req.session.initialisedSession === "undefined") {
-      req.session.initialisedSession = true;
-      req.session.bUserIsAuthenticated = false;
-      req.session.pageViews = 0;
+      req.session.initialisedSession = true,
+      req.session.user = {
+        bUserIsAuthenticated: false,
+        pageViews: 0
+      }
     }
   }
   next();
@@ -40,13 +44,13 @@ app.use(expressSession({
 app.use(authRoutes.routes);
 
 app.get("/", (req, res) => {
-  req.session.pageViews++;
+  req.session.user.pageViews++;
   console.log(req.session);
-
+  
   const data = {
-    bUserIsAuthenticated: req.session.bUserIsAuthenticated,
+    bUserIsAuthenticated: req.session.user.bUserIsAuthenticated,
     objUser: {
-      username: req.session.username
+      username: req.session.user.username
     }
   }
 
@@ -65,4 +69,4 @@ app.get("/", (req, res) => {
     await mongodb.disconnect();
   }
 
-})()
+})();

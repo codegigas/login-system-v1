@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js"
+    "start": "SET \"NODE_ENV=development\" && nodemon server.js",
+    "prod": "SET \"NODE_ENV=production\" && node server.js"
   },
   "repository": {
     "type": "git",
@@ -18,6 +19,7 @@
   "homepage": "https://github.com/codegigas/login-system-v1#readme",
   "dependencies": {
     "connect-mongo": "^3.2.0",
+    "cookie-parser": "^1.4.5",
     "ejs": "^3.1.6",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
