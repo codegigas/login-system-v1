@@ -1,0 +1,9 @@
+<% if (bUserIsAuthenticated) { %>
+  <div>Are you sure you want to logout, <%= objUser.username %>?</div>
+<% } else { %>
+  <div>You are not logged in at the moment. Proceeding with a logout will just refresh your session.</div>
+<% } %>
+
+<form action="/auth/logout" method="POST">
+  <input type="submit" value="Log Out">
+</form>

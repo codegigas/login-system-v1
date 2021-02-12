@@ -2,6 +2,12 @@
 
 const User = require("../models/user.js");
 
+/**
+ * Renders the login page
+ * 
+ * @endpoint {GET} /auth/login
+ * @returns {undefined}
+ */
 const getLoginPage = (req, res) => {
   const data = {
     pageTitle: "Login",
@@ -10,6 +16,12 @@ const getLoginPage = (req, res) => {
   res.render("auth/login.ejs", data);
 }
 
+/**
+ * Renders the register page
+ * 
+ * @endpoint {GET} /auth/register
+ * @returns {undefined}
+ */
 const getRegisterPage = (req, res) => {
   const data = {
     pageTitle: "Register",
@@ -18,6 +30,27 @@ const getRegisterPage = (req, res) => {
   res.render("auth/register.ejs", data);
 }
 
+/**
+ * Renders the logout page
+ * 
+ * @endpoint {GET} /auth/logout
+ * @returns {undefined}
+ */
+const getLogoutPage = (req, res) => {
+  const data = {
+    pageTitle: "Logout",
+    bUserIsAuthenticated: req.session.bUserIsAuthenticated,
+    objUser: req.session.objUser
+  }
+  res.render("auth/logout", data);
+}
+
+/**
+ * Login a user
+ * 
+ * @endpoint {POST} /auth/login
+ * @returns {undefined}
+ */
 const postLogin = async (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
@@ -69,6 +102,12 @@ const postLogin = async (req, res) => {
   });
 }
 
+/**
+ * Registers a new user
+ * 
+ * @endpoint {POST} /auth/register
+ * @returns {undefined}
+ */
 const postRegister = async (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
@@ -97,6 +136,7 @@ const postRegister = async (req, res) => {
 
   if (bUsernameIsAvaliable == false || bEmailIsAvaliable == false) {
     const data = {
+      bUserIsAuthenticated: req.session.bUserIsAuthenticated,
       objRegisterForm: {
         username: username,
         password: password,
@@ -124,13 +164,31 @@ const postRegister = async (req, res) => {
   }
 
   await User.insertOneAsync(user);
-  res.render("home.ejs");
+
+  var data = {
+    bUserIsAuthenticated: req.session.bUserIsAuthenticated,
+  }
+  res.render("home.ejs", data);
   
+}
+
+/**
+ * Destroys the current `req.session` object. Afterwards you will be instantly given a new one, since you make a new request.
+ * 
+ * @endpoint {POST} /auth/logout
+ * @returns {undefined}
+ */
+const postLogout = (req, res) => {
+  req.session.destroy((err) => {
+    res.redirect("/");
+  });
 }
 
 module.exports = {
   getLoginPage: getLoginPage,
   getRegisterPage: getRegisterPage,
+  getLogoutPage: getLogoutPage,
   postLogin: postLogin,
-  postRegister: postRegister
+  postRegister: postRegister,
+  postLogout: postLogout
 }

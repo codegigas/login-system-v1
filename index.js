@@ -6,6 +6,7 @@ const MongoStore = require("connect-mongo")(expressSession);
 const config = require("./src/config/config.js");
 const mongodb = require("./src/config/mongodb.js");
 const authRoutes = require("./src/routes/auth.js");
+const homeRoutes = require('./src/routes/home.js');
 
 const app = express();
 const store = new MongoStore({
@@ -29,34 +30,15 @@ app.use(expressSession({
   }, 
 }), (req, res, next) => {
   // Initialise default variables on the session object
-  if (typeof req.session != "undefined") {
     if (typeof req.session.initialisedSession === "undefined") {
-      req.session.initialisedSession = true,
-      req.session.user = {
-        bUserIsAuthenticated: false,
-        pageViews: 0
-      }
+      req.session.initialisedSession = true;
+      req.session.bUserIsAuthenticated = false;
     }
-  }
   next();
 });
 
 app.use(authRoutes.routes);
-
-app.get("/", (req, res) => {
-  req.session.user.pageViews++;
-  //console.log(req.session);
-  
-  const data = {
-    bUserIsAuthenticated: req.session.user.bUserIsAuthenticated,
-    objUser: {
-      username: req.session.user.username
-    }
-  }
-
-  res.render("home.ejs", data);
-
-});
+app.use(homeRoutes.routes);
 
 (async () => {
   try {
